@@ -81,3 +81,4 @@ function part2() {
   }, 0);
   return totalCopies;
 }
+console.log(part2());
