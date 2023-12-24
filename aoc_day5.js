@@ -26,7 +26,6 @@ let seedArr = data[0]
   .split(' ')
   .slice(1)
   .map((item) => Number(item));
-console.log({ seedArr: seedArr.length });
 let currentProp;
 let mapLookups = data
   .slice(2)
@@ -43,45 +42,47 @@ let mapLookups = data
     return acc;
   }, {});
 
-let finalSourceValues = Object.values(mapLookups).reduce((acc, map, index) => {
-  let sourceArr = index === 0 ? seedArr : [...acc];
-  let nextSource = [];
-  //   console.log({ acc, length: acc.length });
-  for (const row of map) {
-    //find if any sources are <=the totalRange of the row
-    //if they are splice them out of sourceArr and into new array to iterate over
-    //find destination value of lookup values
-    let [destRangeStart, sourceRangeStart, rangeLength] = row;
-    let totalRange = sourceRangeStart + rangeLength - 1;
-    let foundSourceValues = sourceArr.filter(
-      (value) => sourceRangeStart <= value && totalRange >= value
-    );
-    if (foundSourceValues.length) {
-      foundSourceValues.forEach((foundSourceVal) => {
-        let difference = foundSourceVal - sourceRangeStart;
-        let sourceDestination = difference + destRangeStart;
-        if (index === 0)
-          console.log({ sourceDestination, foundSourceVal, row });
+function part1() {
+  let finalSourceValues = Object.values(mapLookups).reduce(
+    (acc, map, index) => {
+      let sourceArr = index === 0 ? seedArr : [...acc];
+      let nextSource = [];
+      for (const row of map) {
+        //find if any sources are <=the totalRange of the row
+        //if they are splice them out of sourceArr and into new array to iterate over
+        //find destination value of source values
+        let [destRangeStart, sourceRangeStart, rangeLength] = row;
+        let totalRange = sourceRangeStart + rangeLength - 1;
+        let foundSourceValues = sourceArr.filter(
+          (value) => sourceRangeStart <= value && totalRange >= value
+        );
+        if (foundSourceValues.length) {
+          foundSourceValues.forEach((foundSourceVal) => {
+            let difference = foundSourceVal - sourceRangeStart;
+            let sourceDestination = difference + destRangeStart;
+            nextSource.push(sourceDestination);
+          });
+          //update sourceArr so we don't check already found source numbers
+          sourceArr = sourceArr.filter(
+            (num) => !foundSourceValues.includes(num)
+          );
+        }
+      }
 
-        nextSource.push(sourceDestination);
-      });
-      sourceArr = sourceArr.filter((num) => !foundSourceValues.includes(num));
-    }
-  }
-  if (index === 1) console.log({ nextSource, sourceArr });
-
-  if (sourceArr.length) {
-    nextSource = nextSource.concat(sourceArr);
-  }
-  acc = [...nextSource];
-  if (index === Object.values(mapLookups)?.length - 1) {
-    return acc.reduce(
-      (lowestNumber, number) => Math.min(number, lowestNumber),
-      Infinity
-    );
-  }
-  return acc;
-}, []);
-console.log({
-  finalSourceValues,
-});
+      if (sourceArr.length) {
+        nextSource = nextSource.concat(sourceArr);
+      }
+      acc = [...nextSource];
+      if (index === Object.values(mapLookups)?.length - 1) {
+        return acc.reduce(
+          (lowestNumber, number) => Math.min(number, lowestNumber),
+          Infinity
+        );
+      }
+      return acc;
+    },
+    []
+  );
+  return finalSourceValues;
+}
+console.log(part1());
