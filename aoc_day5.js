@@ -42,10 +42,12 @@ let mapLookups = data
     return acc;
   }, {});
 
-function part1() {
+// logNestedObjects(Object.values(mapLookups).toReversed());
+
+function part1(initialSourceValues) {
   let finalSourceValues = Object.values(mapLookups).reduce(
     (acc, map, index) => {
-      let sourceArr = index === 0 ? seedArr : [...acc];
+      let sourceArr = index === 0 ? initialSourceValues : [...acc];
       let nextSource = [];
       for (const row of map) {
         //find if any sources are <=the totalRange of the row
@@ -74,10 +76,15 @@ function part1() {
       }
       acc = [...nextSource];
       if (index === Object.values(mapLookups)?.length - 1) {
-        return acc.reduce(
-          (lowestNumber, number) => Math.min(number, lowestNumber),
+        let sorted = map.reduce(
+          (acc, item) => Math.min(item[1], acc),
           Infinity
         );
+        return sorted;
+        // return acc.reduce(
+        //   (lowestNumber, number) => Math.min(number, lowestNumber),
+        //   Infinity
+        // );
       }
       return acc;
     },
@@ -85,4 +92,78 @@ function part1() {
   );
   return finalSourceValues;
 }
-console.log(part1());
+// console.log(part1([25265009]));
+let current;
+let seedArrPart2 = seedArr
+  .reduce((acc, number, i) => {
+    if (i % 2 === 0) {
+      current = { rangeStart: number };
+    } else {
+      current = { ...current, range: number };
+      acc.push(current);
+    }
+    return acc;
+  }, [])
+  ?.reduce((acc, row, index) => {
+    const { rangeStart, range } = row;
+    acc = Math.min(acc, range);
+    return acc;
+  }, Infinity);
+
+let mapLookupValues = Object.values(mapLookups);
+const smallestDestinationValue = mapLookupValues[
+  mapLookupValues.length - 1
+].reduce(
+  (acc, row, i) => {
+    const [destRangeStart, sourceRangeStart, rangeLength] = row;
+    let newObj =
+      acc.destRangeStart < destRangeStart
+        ? { ...acc }
+        : { destRangeStart, sourceRangeStart, rangeLength };
+    acc = { ...newObj };
+    return acc;
+  },
+  { destRangeStart: Infinity }
+);
+console.log('smallestDestinationValue', smallestDestinationValue);
+
+//PART 2
+//REVERSE ENGINEER
+//REVERSE OBJECT VALUES ARRAY AND GRAB SMALLEST STARTING VALUE FOR DESTINATION ITEM[0]
+//MOVE (SOURCE START RANGE AND RANGE) UP TO THE NEXT MAP AND CHECK IF ANY MAP'S DESTINATION START RANGE IS >=PREV SOURCE START RANGE AND PREV TOTAL RANGE <= NEW TOTAL RANGE
+//IF THEY ARE, TAKE SMALLEST POSSIBLE VALUE (COMPARE WITH TEMP VAR) AND MOVE NEW SOURCE START RANGE AND RANGE TO NEXT MAP
+
+let smallestSourceValue = mapLookupValues
+  .toReversed()
+  ?.reduce((acc, map, i) => {
+    const [prevDestRangeStart, prevSourceRangeStart, prevRangeLength] = [
+      ...acc,
+    ];
+    let prevTotalRange = prevDestRangeStart + prevRangeLength - 1;
+    let minValue = [Infinity, Infinity, Infinity];
+    if (i === 0) console.log('initialAccum', { acc });
+    for (const row of map) {
+      let [destRangeStart, sourceRangeStart, rangeLength] = row;
+      let totalRange = destRangeStart + rangeLength - 1;
+      if (destRangeStart === 36297311)
+        console.log('debug here', {
+          prevTotalRange,
+          destRangeStart,
+          prevDestRangeStart,
+          acc,
+        });
+      if (
+        destRangeStart >= prevDestRangeStart &&
+        destRangeStart < prevTotalRange
+      ) {
+        if (destRangeStart < minValue.destRangeStart) {
+          minValue = { ...row };
+        }
+      }
+    }
+    acc = !minValue.includes(Infinity) ? minValue : [...acc];
+    return acc;
+  }, Object.values(smallestDestinationValue));
+console.log({
+  smallestSourceValue,
+});
