@@ -31,10 +31,12 @@ const logNestedObjects = (params, identifier) => {
 
 function part1(input) {
   let numberOfWays = 1;
+  console.log(input);
   for (let race of input) {
     const [time, record] = race;
     let counter = 0;
     //diff of charge time and time * charge time= distance
+    let greaterFound = false;
     for (let i = 0; i <= time; i++) {
       if ((time - i) * i > record) {
         counter++;
@@ -44,4 +46,14 @@ function part1(input) {
   }
   return numberOfWays;
 }
-console.log(part1(cleanData(data)));
+
+let cleanData2 = (_data) => {
+  let times = _data[0].match(/[\d]+/g);
+  let distances = _data[1].match(/[\d]+/g);
+  return [[Number(times.join('')), Number(distances.join(''))]];
+};
+
+function part2() {
+  return part1(cleanData2(data));
+}
+console.log(part2());
