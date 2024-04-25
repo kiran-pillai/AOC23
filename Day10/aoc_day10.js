@@ -123,13 +123,31 @@ function part1() {
   let current = coordinates;
   let nextDirection = initialNextDirection;
   let counter = 0;
+  let allCoordinates = [coordinates];
   while (current[0] !== s[0] || current[1] !== s[1]) {
     counter++;
     const { nextCharCoordinates, nextDirection: calculatedNextDirection } =
       getNextChar(nextDirection, current);
+    allCoordinates.push(nextCharCoordinates);
     current = nextCharCoordinates;
     nextDirection = calculatedNextDirection;
   }
+  console.log(
+    'allCoordinates',
+    allCoordinates.toSorted(
+      ([rowNumberA, columnNumberA], [rowNumberB, columnNumberB]) => {
+        if (rowNumberA === rowNumberB) {
+          return columnNumberA > columnNumberB ? 1 : -1;
+        }
+        return rowNumberA - rowNumberB;
+      }
+    )
+  );
   return (counter + 1) / 2;
 }
 console.log(part1());
+function part2() {
+  // gather all coordinates contained by loop
+  //   append
+  // calculate all coordinates not in the loop
+}

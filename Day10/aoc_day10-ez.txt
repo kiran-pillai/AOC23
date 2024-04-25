@@ -3,3 +3,5 @@
 .|.|.
 .L-J.
 .....
+
+let down={'L':'right','|':'down','J':'left','}
